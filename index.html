@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-KZt3uRlaR271GGBqBPdZiZsaAJ+lZeI7IuAvV38DSHLVbkP4Jrped1IovnHgwlHGawEq+y3OC/YLXTr4Wr9LJw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
       --bg: #0b1222;
@@ -237,6 +238,19 @@
       gap: 12px;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
+    .qr-box {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      align-items: center;
+    }
+    .qr-canvas {
+      justify-self: center;
+      background: #fff;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.28);
+    }
     .feed-card {
       padding: 14px;
       border-radius: 16px;
@@ -297,10 +311,11 @@
         <a href="#hero" data-nav="hero">Giri&#351;</a>
         <a href="#problem" data-nav="problem">Problem</a>
         <a href="#cozum" data-nav="cozum">&#199;&#246;z&#252;m</a>
-        <a href="#senaryolar" data-nav="senaryolar">Senaryolar</a>
-        <a href="#feed" data-nav="feed">Yay&#305;n Ak&#305;&#351;&#305;</a>
-        <a href="#mvp" data-nav="mvp">MVP</a>
-        <a href="#player" data-nav="player">&#350;imdi Dinle</a>
+      <a href="#senaryolar" data-nav="senaryolar">Senaryolar</a>
+      <a href="#feed" data-nav="feed">Yay&#305;n Ak&#305;&#351;&#305;</a>
+      <a href="#qr" data-nav="qr">QR</a>
+      <a href="#mvp" data-nav="mvp">MVP</a>
+      <a href="#player" data-nav="player">&#350;imdi Dinle</a>
       </nav>
       <div class="nav-actions">
         <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Tema de&#287;i&#351;tir">Tema</button>
@@ -405,6 +420,22 @@
         </select>
       </div>
       <div class="feed-grid" id="feed-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="qr">
+      <h2>QR Oluştur (canlı)</h2>
+      <div class="qr-box">
+        <div>
+          <p>Bağlantıyı yaz, QR anında oluşsun. Varsayılan: canlı site URL.</p>
+          <div class="controls">
+            <input id="qr-input" type="text" value="https://silifke-dijital-ses.vercel.app" style="flex:1; min-width:220px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--fg);" aria-label="QR metni">
+            <button class="btn btn-primary" type="button" id="qr-generate">Güncelle</button>
+            <button class="btn btn-ghost" type="button" id="qr-download">İndir (PNG)</button>
+          </div>
+          <p class="feed-meta">QR, örnek senaryoları sahada test etmek için paylaşılabilir.</p>
+        </div>
+        <canvas id="qr-canvas" class="qr-canvas" width="220" height="220" aria-label="QR kod"></canvas>
+      </div>
     </section>
 
     <section id="nasil">
@@ -550,6 +581,22 @@
       filterSel.addEventListener('change', renderFeed);
       sortSel.addEventListener('change', renderFeed);
       renderFeed();
+
+      // QR generator
+      const qrCanvas = document.getElementById('qr-canvas');
+      const qrInput = document.getElementById('qr-input');
+      const qrGenerate = document.getElementById('qr-generate');
+      const qrDownload = document.getElementById('qr-download');
+      let qr = new QRious({ element: qrCanvas, value: qrInput.value, size: 220, level: 'M', background: '#ffffff', foreground: '#000000' });
+      const renderQR = () => qr.set({ value: qrInput.value || 'https://silifke-dijital-ses.vercel.app' });
+      qrGenerate.addEventListener('click', renderQR);
+      qrInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') renderQR(); });
+      qrDownload.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = 'silifke-qr.png';
+        link.href = qrCanvas.toDataURL('image/png');
+        link.click();
+      });
 
       // Mini player mock
       const playToggle = document.getElementById('play-toggle');
